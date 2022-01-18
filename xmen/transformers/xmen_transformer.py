@@ -1,14 +1,14 @@
-"""Xetra ETL Component"""
+"""xmen ETL Component"""
 import logging
 from datetime import datetime
 from typing import NamedTuple
 
 import pandas as pd
 
-from xetra.common.s3 import S3BucketConnector
-from xetra.common.meta_process import MetaProcess
+from xmen.common.s3 import S3BucketConnector
+from xmen.common.meta_process import MetaProcess
 
-class XetraSourceConfig(NamedTuple):
+class xmenSourceConfig(NamedTuple):
     """
     Class for source configuration data
 
@@ -33,7 +33,7 @@ class XetraSourceConfig(NamedTuple):
     src_col_traded_vol: str
 
 
-class XetraTargetConfig(NamedTuple):
+class xmenTargetConfig(NamedTuple):
     """
     Class for target configuration data
 
@@ -61,16 +61,16 @@ class XetraTargetConfig(NamedTuple):
     trg_key_date_format: str
     trg_format: str
 
-class XetraETL():
+class xmenETL():
     """
-    Reads the Xetra data, transforms and writes the transformed to target
+    Reads the xmen data, transforms and writes the transformed to target
     """
 
     def __init__(self, s3_bucket_src: S3BucketConnector,
                  s3_bucket_trg: S3BucketConnector, meta_key: str,
-                 src_args: XetraSourceConfig, trg_args: XetraTargetConfig):
+                 src_args: xmenSourceConfig, trg_args: xmenTargetConfig):
         """
-        Constructor for XetraTransformer
+        Constructor for xmenTransformer
 
         :param s3_bucket_src: connection to source S3 bucket
         :param s3_bucket_trg: connection to target S3 bucket
@@ -96,7 +96,7 @@ class XetraETL():
         :returns:
           data_frame: Pandas DataFrame with the extracted data
         """
-        self._logger.info('Extracting Xetra source files started...')
+        self._logger.info('Extracting xmen source files started...')
         files = [key for date in self.extract_date_list\
                      for key in self.s3_bucket_src.list_files_in_prefix(date)]
         if not files:
@@ -104,7 +104,7 @@ class XetraETL():
         else:
             data_frame = pd.concat([self.s3_bucket_src.read_csv_to_df(file)\
                 for file in files], ignore_index=True)
-        self._logger.info('Extracting Xetra source files finished.')
+        self._logger.info('Extracting xmen source files finished.')
         return data_frame
 
     def transform_report1(self, data_frame: pd.DataFrame):
@@ -119,7 +119,7 @@ class XetraETL():
         if data_frame.empty:
             self._logger.info('The dataframe is empty. No transformations will be applied.')
             return data_frame
-        self._logger.info('Applying transformations to Xetra source data for report 1 started...')
+        self._logger.info('Applying transformations to xmen source data for report 1 started...')
         # Filtering necessary source columns
         data_frame = data_frame.loc[:, self.src_args.src_columns]
         # Removing rows with missing values
@@ -171,7 +171,7 @@ class XetraETL():
         data_frame = data_frame.round(decimals=2)
         # Removing the day before extract_date
         data_frame = data_frame[data_frame.Date >= self.extract_date].reset_index(drop=True)
-        self._logger.info('Applying transformations to Xetra source data finished...')
+        self._logger.info('Applying transformations to xmen source data finished...')
         return data_frame
 
     def load(self, data_frame: pd.DataFrame):
@@ -188,10 +188,10 @@ class XetraETL():
         )
         # Writing to target
         self.s3_bucket_trg.write_df_to_s3(data_frame, target_key, self.trg_args.trg_format)
-        self._logger.info('Xetra target data successfully written.')
+        self._logger.info('xmen target data successfully written.')
         # Updating meta file
         MetaProcess.update_meta_file(self.meta_update_list, self.meta_key, self.s3_bucket_trg)
-        self._logger.info('Xetra meta file successfully updated.')
+        self._logger.info('xmen meta file successfully updated.')
         return True
 
     def etl_report1(self):

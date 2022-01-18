@@ -1,4 +1,4 @@
-"""TestXetraETLMethods"""
+"""TestxmenETLMethods"""
 import os
 import unittest
 from unittest.mock import patch
@@ -8,13 +8,13 @@ import boto3
 import pandas as pd
 from moto import mock_s3
 
-from xetra.common.s3 import S3BucketConnector
-from xetra.common.meta_process import MetaProcess
-from xetra.transformers.xetra_transformer import XetraETL, XetraSourceConfig, XetraTargetConfig
+from xmen.common.s3 import S3BucketConnector
+from xmen.common.meta_process import MetaProcess
+from xmen.transformers.xmen_transformer import xmenETL, xmenSourceConfig, xmenTargetConfig
 
-class TestXetraETLMethods(unittest.TestCase):
+class TestxmenETLMethods(unittest.TestCase):
     """
-    Testing the XetraETL class.
+    Testing the xmenETL class.
     """
 
     def setUp(self):
@@ -75,12 +75,12 @@ class TestXetraETLMethods(unittest.TestCase):
             'trg_col_max_price': 'maximum_price_eur',
             'trg_col_dail_trad_vol': 'daily_traded_volume',
             'trg_col_ch_prev_clos': 'change_prev_closing_%',
-            'trg_key': 'report1/xetra_daily_report1_',
+            'trg_key': 'report1/xmen_daily_report1_',
             'trg_key_date_format': '%Y%m%d_%H%M%S',
             'trg_format': 'parquet'
         }
-        self.source_config = XetraSourceConfig(**conf_dict_src)
-        self.target_config = XetraTargetConfig(**conf_dict_trg)
+        self.source_config = xmenSourceConfig(**conf_dict_src)
+        self.target_config = xmenTargetConfig(**conf_dict_trg)
         # Creating source files on mocked s3
         columns_src = ['ISIN', 'Mnemonic', 'Date', 'Time', 'StartPrice',
         'EndPrice', 'MinPrice', 'MaxPrice', 'TradedVolume']
@@ -134,9 +134,9 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
-            df_return = xetra_etl.extract()
+            df_return = xmen_etl.extract()
         # Test after method execution
         self.assertTrue(df_return.empty)
 
@@ -153,9 +153,9 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
-            df_result = xetra_etl.extract()
+            df_result = xmen_etl.extract()
         # Test after method execution
         self.assertTrue(df_exp.equals(df_result))
 
@@ -173,10 +173,10 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
             with self.assertLogs() as logm:
-                df_result = xetra_etl.transform_report1(df_input)
+                df_result = xmen_etl.transform_report1(df_input)
                 # Log test after method execution
                 self.assertIn(log_exp, logm.output[0])
         # Test after method execution
@@ -188,8 +188,8 @@ class TestXetraETLMethods(unittest.TestCase):
         an DataFrame as input argument
         """
         # Expected results
-        log1_exp = 'Applying transformations to Xetra source data for report 1 started...'
-        log2_exp = 'Applying transformations to Xetra source data finished...'
+        log1_exp = 'Applying transformations to xmen source data for report 1 started...'
+        log2_exp = 'Applying transformations to xmen source data finished...'
         df_exp = self.df_report
         # Test init
         extract_date = '2021-04-17'
@@ -198,10 +198,10 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
             with self.assertLogs() as logm:
-                df_result = xetra_etl.transform_report1(df_input)
+                df_result = xmen_etl.transform_report1(df_input)
                 # Log test after method execution
                 self.assertIn(log1_exp, logm.output[0])
                 self.assertIn(log2_exp, logm.output[1])
@@ -213,8 +213,8 @@ class TestXetraETLMethods(unittest.TestCase):
         Tests the load method
         """
         # Expected results
-        log1_exp = 'Xetra target data successfully written.'
-        log2_exp = 'Xetra meta file successfully updated.'
+        log1_exp = 'xmen target data successfully written.'
+        log2_exp = 'xmen meta file successfully updated.'
         df_exp = self.df_report
         meta_exp = ['2021-04-17', '2021-04-18', '2021-04-19']
         # Test init
@@ -224,10 +224,10 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
             with self.assertLogs() as logm:
-                xetra_etl.load(df_input)
+                xmen_etl.load(df_input)
                 # Log test after method execution
                 self.assertIn(log1_exp, logm.output[1])
                 self.assertIn(log2_exp, logm.output[4])
@@ -267,9 +267,9 @@ class TestXetraETLMethods(unittest.TestCase):
         # Method execution
         with patch.object(MetaProcess, "return_date_list",
         return_value=[extract_date, extract_date_list]):
-            xetra_etl = XetraETL(self.s3_bucket_src, self.s3_bucket_trg,
+            xmen_etl = xmenETL(self.s3_bucket_src, self.s3_bucket_trg,
                          self.meta_key, self.source_config, self.target_config)
-            xetra_etl.etl_report1()
+            xmen_etl.etl_report1()
         # Test after method execution
         trg_file = self.s3_bucket_trg.list_files_in_prefix(self.target_config.trg_key)[0]
         data = self.trg_bucket.Object(key=trg_file).get().get('Body').read()

@@ -6,8 +6,8 @@ from io import StringIO, BytesIO
 import boto3
 import pandas as pd
 
-from xetra.common.constants import S3FileTypes
-from xetra.common.custom_exceptions import WrongFormatException
+from xmen.common.constants import S3FileTypes
+from xmen.common.custom_exceptions import WrongFormatException
 
 class S3BucketConnector():
     """

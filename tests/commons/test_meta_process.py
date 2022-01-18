@@ -8,10 +8,10 @@ import boto3
 import pandas as pd
 from moto import mock_s3
 
-from xetra.common.s3 import S3BucketConnector
-from xetra.common.meta_process import MetaProcess
-from xetra.common.constants import MetaProcessFormat
-from xetra.common.custom_exceptions import WrongMetaFileException
+from xmen.common.s3 import S3BucketConnector
+from xmen.common.meta_process import MetaProcess
+from xmen.common.constants import MetaProcessFormat
+from xmen.common.custom_exceptions import WrongMetaFileException
 
 
 class TestMetaProcessMethods(unittest.TestCase):

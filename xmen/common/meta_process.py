@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 
-from xetra.common.s3 import S3BucketConnector
-from xetra.common.constants import MetaProcessFormat
-from xetra.common.custom_exceptions import WrongMetaFileException
+from xmen.common.s3 import S3BucketConnector
+from xmen.common.constants import MetaProcessFormat
+from xmen.common.custom_exceptions import WrongMetaFileException
 
 class MetaProcess():
     """
@@ -18,7 +18,7 @@ class MetaProcess():
     @staticmethod
     def update_meta_file(extract_date_list: list, meta_key: str, s3_bucket_meta: S3BucketConnector):
         """
-        Updating the meta file with the processed Xetra dates and todays date as processed date
+        Updating the meta file with the processed xmen dates and todays date as processed date
 
         :param: extract_date_list -> a list of dates that are extracted from the source
         :param: meta_key -> key of the meta file on the S3 bucket
@@ -52,7 +52,7 @@ class MetaProcess():
         Creating a list of dates based on the input first_date and the already
         processed dates in the meta file
 
-        :param: first_date -> the earliest date Xetra data should be processed
+        :param: first_date -> the earliest date xmen data should be processed
         :param: meta_key -> key of the meta file on the S3 bucket
         :param: s3_bucket_meta -> S3BucketConnector for the bucket with the meta file
 
