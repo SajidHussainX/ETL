@@ -3,7 +3,7 @@ s3:
   access_key: 'AWS_ACCESS_KEY_ID'
   secret_key: 'AWS_SECRET_ACCESS_KEY'
   src_endpoint_url: 'https://s3.amazonaws.com'
-  src_bucket: 'deutsche-boerse-xmen-pds'
+  src_bucket: 'source-1234'
   trg_endpoint_url: 'https://s3.amazonaws.com'
   trg_bucket: 'xmen-1234'
   
